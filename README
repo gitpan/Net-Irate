@@ -1,0 +1,40 @@
+
+Net::Irate - Perl client interface to Irate <http://irate.sf.net/>
+
+DESCRIPTION
+
+Net::Irate is a client protocol interface to Irate <http://irate.sf.net/> 
+implemented in Perl.  It allows a programmer to upload ratings and request
+recommendations from the Irate server.
+
+Irate communicates using XML documents over HTTP connections.  Net::Irate
+encapsulates XML and HTTP in it's API.  Please see examples in the eg/ 
+directory.
+
+PREREQUISITES
+
+Net::Irate was developed with:
+Perl 5.8.1
+XML::TreeBuilder 3.08
+LWP::UserAgent 2.24
+
+INSTALLATION
+
+To build this module, run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+COPYRIGHT
+
+Copyright (c) 2004 Doug Thayer. All rights reserved.
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+AUTHOR INFO
+
+Net::Irate is the creation of:
+	Doug Thayer 
+	d_l_thayer@yahoo.com

@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+use Net::Irate;
+
+$irate = new Net::Irate { file => "irate.xml",
+			  name => "netirate01",
+			  password => "netirate01" };
+
+$irate->contact_server;
+
+foreach $track ($irate->tracks) {
+    if($track->file eq undef &&
+       $track->state ne "broken") {
+	print "Downloading ", $track->url, "\n";
+	$irate->download_track($track);
+    }
+}
+
+$irate->save;
+

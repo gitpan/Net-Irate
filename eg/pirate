@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+
+## pirate 0.1 - perl script to access irate network
+##   perl irate -- NOT a "music piracy" application -- see <irate.sf.net>
+## please change name and password below
+
+$| = 1;
+
+use Net::Irate;
+use Getopt::Std;
+
+getopts("qufsre:");
+# -e : erase #file#
+# -q : list q
+# -u : list unrated
+# -f : list files we have
+# -s : contact server
+# -r : rate one track
+
+$home = $ENV{"HOME"};
+$irate = new Net::Irate { file => "$home/.pirate.xml",
+			  name => "netirate01",
+			  password => "netirate01" };
+
+if($opt_q || $opt_u || $opt_f) {
+    foreach $track ($irate->tracks) {
+	my @f = split(/\//, $track->file);
+	my $f = pop @f;
+
+	if($opt_f && 
+	   $track->file ne undef) {
+	    print "$f\n";
+	} elsif($opt_q &&
+		$track->file eq undef &&
+		$track->state ne "broken") {
+	    print $track->url, "\n";
+	} elsif($opt_u &&
+		$track->file ne undef &&
+		$track->rating eq undef) {
+	    print "$f\n";
+	}
+    }
+} elsif ($opt_r || $opt_e) {
+    foreach $track ($irate->tracks) {
+	if($opt_r &&
+	   $track->file ne undef &&
+	   $track->rating eq undef && 
+	   $track->state ne "broken") {
+	    print $track->file, "\n";
+	    $rating = <STDIN>;
+	    chomp($rating);
+	    $track->rating($rating);
+	    last;
+	} elsif ($opt_e &&
+		 $track->file =~ /$opt_e/) {
+	    print "Setting state of ", $track->file, " to erased\n";
+	    $track->state("erased");
+	    last;
+	}
+    }
+} elsif ($opt_s) {
+    $irate->contact_server;
+} else {
+    foreach $track ($irate->tracks) {
+	if($track->file eq undef &&
+	   $track->state ne "broken") {
+	    print "Downloading ", $track->url, "\n";
+	    $irate->download_track($track);
+	    last;
+	}
+    }
+}
+
+$irate->save;

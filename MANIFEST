@@ -1,0 +1,10 @@
+Changes
+eg/pirate
+eg/simple
+lib/Net/Irate.pm
+lib/Net/Irate/Downloader.pm
+lib/Net/Irate/Track.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
