@@ -1,3 +1,9 @@
+0.2
+- moved calc_filename from Downloader to Track
+- created is_downloadable method in Net::Irate::Track
+- cleaned up and enabled downloader->dl_cb
+- changed a hardcoded path to configurable (Downloader->{destdir})
+- added test script t/use.t to please cpan-testers
 
 0.1  06Oct04
 - Initial release

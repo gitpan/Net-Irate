@@ -9,8 +9,7 @@ $irate = new Net::Irate { file => "irate.xml",
 $irate->contact_server;
 
 foreach $track ($irate->tracks) {
-    if($track->file eq undef &&
-       $track->state ne "broken") {
+    if($track->is_downloadable) {
 	print "Downloading ", $track->url, "\n";
 	$irate->download_track($track);
     }

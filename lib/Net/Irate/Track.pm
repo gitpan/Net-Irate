@@ -1,9 +1,12 @@
 package Net::Irate::Track;
 
+use strict;
 use XML::TreeBuilder;
+use URI::Escape;
 
 sub new {
     my $pkg = shift || __PACKAGE__;
+
     my $self = { };
 
     $self->{track} = shift || XML::Element->new('track');
@@ -17,6 +20,17 @@ sub track {
     my $self = shift;
 
     return $self->{track};
+}
+
+sub is_downloadable {
+    my $self = shift;
+
+    if($self->file eq undef &&
+       $self->state ne "broken") {
+	return 1;
+    } else {
+	return 0;
+    }
 }
 
 sub file {
@@ -52,6 +66,26 @@ sub rating {
     if(@_) { $self->track->attr("rating", shift); }
     return $self->track->attr("rating");
 }
+
+sub calc_filename {
+    my $self = shift;
+
+    my $url = $self->url;
+
+    my $t = uri_unescape($url);
+    $t =~ s/\s+/_/g;
+    $t =~ s/_+/_/g;
+    $t =~ s/[\'\"\,\!\(\)]//g;
+    $t =~ s/\&/and/g;
+    $t =~ s/_-_/-/g;
+    $t =~ s/-none-/-/ig;
+    $t =~ s/-unknown-/-/ig;
+    my @fn_parts = split(/\//, $t);
+    my $fn = pop(@fn_parts);
+
+    return $fn;
+}
+
 
 1;
 

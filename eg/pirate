@@ -61,9 +61,10 @@ if($opt_q || $opt_u || $opt_f) {
 } elsif ($opt_s) {
     $irate->contact_server;
 } else {
+    $irate->downloader->dl_cb(\&dl_cb);
+
     foreach $track ($irate->tracks) {
-	if($track->file eq undef &&
-	   $track->state ne "broken") {
+	if($track->is_downloadable) {
 	    print "Downloading ", $track->url, "\n";
 	    $irate->download_track($track);
 	    last;
@@ -72,3 +73,21 @@ if($opt_q || $opt_u || $opt_f) {
 }
 
 $irate->save;
+
+sub dl_cb {
+    my($ua, $resp, $len) = @_;
+
+    if($ua->{ctr} < 1 &&
+       $resp->header('Content-Length') > 0) {
+       print "Size: ", $resp->header('Content-Length'), "\n";
+    }
+
+    $ua->{ctr} += $len;
+    if($ua->{ctr} > 10000) {
+       print ".";
+       $ua->{ctr} = 0;
+    }
+}
+
+
+

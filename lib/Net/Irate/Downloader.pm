@@ -1,9 +1,10 @@
 package Net::Irate::Downloader;
 
-use Data::Dumper;
+use strict;
+use vars qw (@ISA);
+
 use Net::Irate::Track;
 use LWP::UserAgent;
-use URI::Escape;
 
 @ISA = ("LWP::UserAgent");
 
@@ -13,9 +14,10 @@ sub new {
 
     my $self  = $class->SUPER::new();
 
-    $self->{dl_cb} = \&download_callback;
+    $self->{dl_cb} = undef;
+    $self->{destdir} = undef;
 
-    bless ($self, $class);          # reconsecrate
+    bless ($self, $class); 
     return $self;
 }
 
@@ -24,7 +26,7 @@ sub get_url {
     my $url = shift;
     my $dest = shift;
 
-    $sz = -s $dest || 0;
+    my $sz = -s $dest || 0;
 
     open($self->{output_file}, ">> $dest");
     my $resp = $self->get($url, 
@@ -39,11 +41,12 @@ sub get_track {
     my $self = shift;
     my $track = shift;
 
-    my $url = $track->url;
-    my $dest = "/home/thayer/irate/download/" . calc_filename($url);
+    my $dest = $self->{destdir} . $track->calc_filename;
 
     $self->{ctr} = undef;
-    $resp = $self->get_url($url, $dest);
+
+    my $url = $track->url;
+    my $resp = $self->get_url($url, $dest);
 
     if($resp->is_success) {
 	$track->file($dest);
@@ -57,45 +60,34 @@ sub get_track {
     }
 }
 
-## functions
-sub calc_filename {
-    my $url = shift;
+sub destdir {
+    my $self = shift;
 
-    my $t = uri_unescape($url);
-    $t =~ s/\s+/_/g;
-    $t =~ s/_+/_/g;
-    $t =~ s/[\'\"\,\!\(\)]//g;
-    $t =~ s/\&/and/g;
-    $t =~ s/_-_/-/g;
-    $t =~ s/-none-/-/ig;
-    $t =~ s/-unknown-/-/ig;
-    my @fn_parts = split(/\//, $t);
-    my $fn = pop(@fn_parts);
-
-    return $fn;
+    if(@_) { $self->{destdir} = shift; } 
+    
+    return $self->{destdir};
 }
 
+sub callback {
+    my $self = shift;
+
+    if(@_) { $self->{dl_cb} = shift; }
+    return $self->{dl_cb};
+}
+
+
+## functions
 sub download_cb {
     my $dat = shift;
     my $resp = shift;
     my $prot = shift;
 
     my $ua = $prot->{ua};
+    print {$ua->{output_file}} $dat;
 
-    if($ua->{ctr} eq undef &&
-       $resp->header('Content-Length') > 0) {
-	print "Size: ", $resp->header('Content-Length'), "\n";
-    }
-
-    $ua->{ctr} += length($dat);
-    $ofile = $ua->{output_file};
-
-    print $ofile $dat;
-
-    if($ua->{ctr} > 10000) {
-	print ".";
-	$ua->{ctr} = 0;
+    if($ua->{dl_cb} ne undef) {
+	&{$ua->{dl_cb}}($ua, $resp, length($dat));
     }
 }
 
-
+1;

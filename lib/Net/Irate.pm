@@ -1,7 +1,8 @@
 package Net::Irate;
 
-$VERSION="0.1";
+$VERSION="0.2";
 
+use strict;
 use LWP::UserAgent;
 use XML::TreeBuilder;
 
@@ -61,7 +62,7 @@ sub load {
 
     $self->{index} = 0;
     $self->{tracks} = [];
-    foreach $trk ($self->{tree}->look_down("_tag", "Track")) {
+    foreach my $trk ($self->{tree}->look_down("_tag", "Track")) {
 	push( @{$self->{tracks}}, new Net::Irate::Track($trk));
     }
 
@@ -94,7 +95,7 @@ sub contact_server {
     $t2->parse($ret->content);
     $self->{tree}->push_content($t2->look_down("_tag", "Track"));
 
-    foreach $trk ($t2->look_down("_tag", "Track")) {
+    foreach my $trk ($t2->look_down("_tag", "Track")) {
 	push(@{$self->{tracks}}, new Net::Irate::Track($trk));
     }
 }
@@ -141,9 +142,8 @@ sub get_fetch {
     my $self = shift;
     my @tracks;
 
-    foreach $track ($self->{tracks}) {
-	if($track->file eq undef && 
-	   $track->state eq undef) {
+    foreach my $track ($self->{tracks}) {
+	if($track->is_downloadable) {
 	    push(@tracks, $track);
 	}
     }
