@@ -41,7 +41,7 @@ sub get_track {
     my $self = shift;
     my $track = shift;
 
-    my $dest = $self->{destdir} . $track->calc_filename;
+    my $dest = $self->{destdir} . "/" . $track->calc_filename;
 
     $self->{ctr} = undef;
 

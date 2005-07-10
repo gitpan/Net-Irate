@@ -1,4 +1,8 @@
-0.2
+0.3 
+- added downloader() accessor to Net::Irate
+- corrected bug with Downloader->destdir save pathname
+
+0.2  16Nov04
 - moved calc_filename from Downloader to Track
 - created is_downloadable method in Net::Irate::Track
 - cleaned up and enabled downloader->dl_cb

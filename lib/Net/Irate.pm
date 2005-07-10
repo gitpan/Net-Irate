@@ -1,6 +1,6 @@
 package Net::Irate;
 
-$VERSION="0.2";
+$VERSION="0.3";
 
 use strict;
 use LWP::UserAgent;
@@ -148,6 +148,13 @@ sub get_fetch {
 	}
     }
     return @tracks;
+}
+
+sub downloader {
+    my $self = shift;
+
+    if(@_) { $self->{downloader} = shift; }
+    return $self->{downloader};
 }
 
 1;
